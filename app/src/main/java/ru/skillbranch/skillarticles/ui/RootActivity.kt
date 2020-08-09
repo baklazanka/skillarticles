@@ -81,7 +81,7 @@ class RootActivity : AppCompatActivity() {
 //                searchView.clearFocus()
 //                searchView.requestFocusFromTouch()
 
-                //searchView.setQuery(it.searchQuery, true)
+                searchView.setQuery(it.searchQuery, false)
             }
         }
 
