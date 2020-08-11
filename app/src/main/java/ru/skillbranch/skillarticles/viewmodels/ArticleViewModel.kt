@@ -151,6 +151,7 @@ class ArticleViewModel(private val articleId: String) : BaseViewModel<ArticleSta
     override fun handleSearch(query: String?) {
         handleSearchQuery(query)
     }
+
 }
 
 data class ArticleState(

@@ -2,6 +2,7 @@ package ru.skillbranch.skillarticles.ui
 
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -57,6 +58,12 @@ class RootActivity : AppCompatActivity() {
         //searchEditText.setTextColor(getColor(R.color.color_on_surface))
         //searchEditText.setHintTextColor(getColor(R.color.color_gray))
 
+        if (viewModel.currentState.isSearch) {
+            searchItem.expandActionView()
+            searchView.setQuery(viewModel.currentState.searchQuery, false)
+            searchView.clearFocus()
+        }
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 viewModel.handleIsSearch(true) // handleSearchMode
@@ -71,19 +78,17 @@ class RootActivity : AppCompatActivity() {
             }
         })
 
-        viewModel.observeState(this) {
-            if (it.isSearch) {
-                searchItem.expandActionView()
-
-                //searchView.setIconifiedByDefault(true)
-//                //searchView.focusable = true
-//                searchView.setIconified(false)
-//                searchView.clearFocus()
-//                searchView.requestFocusFromTouch()
-
-                searchView.setQuery(it.searchQuery, false)
+        searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                return true
             }
-        }
+
+            override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
+                viewModel.handleIsSearch(false) // handleSearchMode
+                viewModel.handleSearchQuery(null) // handleSearch(newText)
+                return true
+            }
+        })
 
         return super.onCreateOptionsMenu(menu)
     }
