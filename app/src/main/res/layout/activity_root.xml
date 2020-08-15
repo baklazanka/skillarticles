@@ -59,6 +59,7 @@
         android:layout_gravity="bottom"
         android:theme="@style/ArticleBarsTheme"
         android:elevation="4dp"
-        app:layout_insetEdge="bottom"/>
+        app:layout_insetEdge="bottom"
+        android:minHeight="56dp"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
