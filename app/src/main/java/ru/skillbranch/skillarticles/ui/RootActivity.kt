@@ -27,6 +27,8 @@ import ru.skillbranch.skillarticles.viewmodels.ViewModelFactory
 class RootActivity : AppCompatActivity() {
 
     private lateinit var viewModel: ArticleViewModel
+    private var searchQuery: String? = null
+    private var isSearching = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +41,13 @@ class RootActivity : AppCompatActivity() {
         viewModel = ViewModelProviders.of(this, vmFactory).get(ArticleViewModel::class.java)
         viewModel.observeState(this) {
             renderUi(it)
-            if (!it.isSearch) setupToolbar()
+
+            // restore search mode
+            //if (!it.isSearch) setupToolbar()
+            if (it.isSearch) {
+                isSearching = true
+                searchQuery = it.searchQuery
+            }
         }
 
         viewModel.observeNotifications(this) {
@@ -51,41 +59,49 @@ class RootActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_search, menu)
         val searchItem = menu?.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
-        searchView.queryHint = "Search"
+        //searchView.queryHint = "Search"
+        searchView.queryHint = getString(R.string.article_search_placeholder)
 
-        // set text color programmatically
-        //val searchEditText =  searchView.findViewById(androidx.appcompat.R.id.search_src_text) as EditText
-        //searchEditText.setTextColor(getColor(R.color.color_on_surface))
-        //searchEditText.setHintTextColor(getColor(R.color.color_gray))
-
-        if (viewModel.currentState.isSearch) {
+        // restore SearchView
+        if (isSearching) {
             searchItem.expandActionView()
-            searchView.setQuery(viewModel.currentState.searchQuery, false)
+            searchView.setQuery(searchQuery, false)
             searchView.clearFocus()
         }
 
+        // Не очень хорошо обращаться напрямую к модели. Лучше запомнить состояние в переменные
+        //if (viewModel.currentState.isSearch) {
+        //  searchItem.expandActionView()
+        //  searchView.setQuery(viewModel.currentState.searchQuery, false)
+        //  searchView.clearFocus()
+        //}
+
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                viewModel.handleIsSearch(true) // handleSearchMode
-                viewModel.handleSearchQuery(query) // handleSearch(query)
+                viewModel.handleSearch(query)
+                //viewModel.handleIsSearch(true) // handleSearchMode
+                //viewModel.handleSearchQuery(query) // handleSearch(query)
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.handleIsSearch(true) // handleSearchMode
-                viewModel.handleSearchQuery(newText) // handleSearch(newText)
+                viewModel.handleSearch(newText)
+                //viewModel.handleIsSearch(true) // handleSearchMode
+                //viewModel.handleSearchQuery(newText) // handleSearch(newText)
                 return true
             }
         })
 
         searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(p0: MenuItem?): Boolean {
+                viewModel.handleSearchMode(true)
                 return true
             }
 
             override fun onMenuItemActionCollapse(p0: MenuItem?): Boolean {
-                viewModel.handleIsSearch(false) // handleSearchMode
-                viewModel.handleSearchQuery(null) // handleSearch(newText)
+                viewModel.handleSearchMode(false)
+                //viewModel.handleIsSearch(false) // handleSearchMode
+                //viewModel.handleSearchQuery(null) // handleSearch(newText)
                 return true
             }
         })
