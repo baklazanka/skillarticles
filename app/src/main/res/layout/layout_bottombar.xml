@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
-
     <ru.skillbranch.skillarticles.ui.custom.CheckableImageView
         android:id="@+id/btn_like"
         style="@style/BottombarIcon"
