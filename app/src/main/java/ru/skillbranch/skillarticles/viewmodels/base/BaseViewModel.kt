@@ -1,10 +1,11 @@
-package ru.skillbranch.skillarticles.viewmodels
+package ru.skillbranch.skillarticles.viewmodels.base
 
+import android.os.Bundle
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 
-abstract class BaseViewModel<T>(initState: T) : ViewModel() {
+abstract class BaseViewModel<T : IViewModelState>(initState: T) : ViewModel() {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val notifications = MutableLiveData<Event<Notify>>()
@@ -25,6 +26,7 @@ abstract class BaseViewModel<T>(initState: T) : ViewModel() {
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     val currentState
         get() = state.value!!
+
 
     /***
      * лямбда выражение принимает в качестве аргумента текущее состояние и возвращает
@@ -60,7 +62,8 @@ abstract class BaseViewModel<T>(initState: T) : ViewModel() {
      * реализует данное поведение с помощью EventObserver
      */
     fun observeNotifications(owner: LifecycleOwner, onNotify: (notification: Notify) -> Unit) {
-        notifications.observe(owner, EventObserver { onNotify(it) })
+        notifications.observe(owner,
+            EventObserver { onNotify(it) })
     }
 
     /***
@@ -77,15 +80,13 @@ abstract class BaseViewModel<T>(initState: T) : ViewModel() {
         }
     }
 
-}
+    fun saveState(outState: Bundle){
+        currentState.save(outState)
+    }
 
-class ViewModelFactory(private val params: String) : ViewModelProvider.Factory {
-
-    override fun <T: ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ArticleViewModel::class.java)) {
-            return ArticleViewModel(params) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
+    @Suppress("UNCHECKED_CAST")
+    fun restoreState(savedState: Bundle){
+        state.value = currentState.restore(savedState) as T
     }
 
 }
@@ -116,7 +117,7 @@ class Event<out E>(private val content: E) {
 class EventObserver<E>(private val onEventUnhandledContent: (E) -> Unit) : Observer<Event<E>> {
 
     override fun onChanged(event: Event<E>?) {
-        // если есть необработанное событие (контент), передай в качестве аргумента в лямбду
+        //если есть необработанное событие (контент) передай в качестве аргумента в лямбду
         // onEventUnhandledContent
         event?.getContentIfNotHandled()?.let {
             onEventUnhandledContent(it)

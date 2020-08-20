@@ -30,7 +30,6 @@ object LocalDataHolder {
                     author = "Skill-Branch"
                 )
             }
-
         }
         return articleData
     }
@@ -46,7 +45,6 @@ object LocalDataHolder {
     }
 
     fun getAppSettings() = settings
-
     fun updateAppSettings(appSettings: AppSettings) {
         settings.value = appSettings
     }
@@ -59,11 +57,10 @@ object LocalDataHolder {
     fun clearData(){
         articleInfo.postValue(null)
         articleData.postValue(null)
-        settings.postValue(AppSettings())
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    fun disableDelay(value: Boolean = false) {
+    fun disableDelay(value:Boolean = false) {
         isDelay = !value
     }
 
@@ -73,6 +70,7 @@ object NetworkDataHolder {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val content = MutableLiveData<List<Any>?>(null)
+
     private var isDelay = true
 
     fun loadArticleContent(articleId: String): LiveData<List<Any>?> {
@@ -91,7 +89,7 @@ object NetworkDataHolder {
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    fun clearData(){
+    fun clearData() {
         content.postValue(null)
     }
 
