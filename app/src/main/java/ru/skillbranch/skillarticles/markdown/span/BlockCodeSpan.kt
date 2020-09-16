@@ -38,7 +38,7 @@ class BlockCodeSpan(
         bottom: Int,
         paint: Paint
     ) {
-        //TODO implement me()
+
     }
 
     override fun getSize(
@@ -48,7 +48,7 @@ class BlockCodeSpan(
         end: Int,
         fm: Paint.FontMetricsInt?
     ): Int {
-        //TODO implement me()
+
         return 0
     }
 }

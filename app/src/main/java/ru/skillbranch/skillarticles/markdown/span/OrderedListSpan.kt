@@ -20,7 +20,7 @@ class OrderedListSpan(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     override fun getLeadingMargin(first: Boolean): Int {
-        //TODO implement me()
+
         return 0
     }
 
@@ -29,6 +29,6 @@ class OrderedListSpan(
         lineTop: Int, lineBaseline: Int, lineBottom: Int, text: CharSequence?, lineStart: Int,
         lineEnd: Int, isFirstLine: Boolean, layout: Layout?
     ) {
-        //TODO implement me()
+        
     }
 }
