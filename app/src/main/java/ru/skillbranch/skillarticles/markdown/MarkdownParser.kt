@@ -187,10 +187,10 @@ object MarkdownParser {
                 //11 -> NUMERIC LIST
                 11 -> {
                     //text without "[0-9]. "
-                    val reg = "^[0-9]+".toRegex().find(string.subSequence(startIndex, endIndex))
+                    val reg = "^[0-9]+\\.".toRegex().find(string.subSequence(startIndex, endIndex))
                     val order = reg!!.value
 
-                    text = string.subSequence(startIndex.plus(order.length + 2), endIndex)
+                    text = string.subSequence(startIndex.plus(order.length + 1), endIndex)
 
                     // find inner elements
                     val subs = findElements(text)
