@@ -16,12 +16,13 @@ object MarkdownParser {
     private const val RULE_GROUP = "(^[-_*]{3}$)"
     private const val INLINE_GROUP = "((?<!`)`[^`\\s].*?[^`\\s]?`(?!`))"
     private const val LINK_GROUP = "(\\[[^\\[\\]]*?]\\(.+?\\)|^\\[*?]\\(.*?\\))"
-    private const val BLOCK_CODE_GROUP = "implement me"
-    private const val ORDER_LIST_GROUP = "implement me"
+    private const val BLOCK_CODE_GROUP = "(^`{4})" // implement me
+    private const val ORDER_LIST_GROUP = "(^[0-9]+\\. .+$)"
 
     //result regex
     private const val MARKDOWN_GROUPS = "$UNORDERED_LIST_ITEM_GROUP|$HEADER_GROUP|$QUOTE_GROUP" +
-            "|$ITALIC_GROUP|$BOLD_GROUP|$STRIKE_GROUP|$RULE_GROUP|$INLINE_GROUP|$LINK_GROUP"
+            "|$ITALIC_GROUP|$BOLD_GROUP|$STRIKE_GROUP|$RULE_GROUP|$INLINE_GROUP|$LINK_GROUP" +
+            "|$BLOCK_CODE_GROUP|$ORDER_LIST_GROUP"
     //|$BLOCK_CODE_GROUP|$ORDER_LIST_GROUP optionally
 
     private val elementsPattern by lazy { Pattern.compile(MARKDOWN_GROUPS, Pattern.MULTILINE) }
@@ -49,20 +50,6 @@ object MarkdownParser {
         return text
     }
 
-    private fun addText(element: Element): String {
-        var text: String = ""
-
-        if (element.elements.isEmpty()) {
-            text = element.text.toString()
-        } else {
-            element.elements.forEach {
-                text += addText(it)
-            }
-        }
-
-        return text
-    }
-
     /**
      * find markdown elements in markdown text
      */
@@ -84,8 +71,8 @@ object MarkdownParser {
             var text: CharSequence
 
             //groups range for iterate by groups (1..9) or (1..11) optionally
-            //val groups = 1..11
-            val groups = 1..9
+            val groups = 1..11
+//            val groups = 1..9
             var group = -1
             for (gr in groups) {
                 if (matcher.group(gr) != null) {
@@ -191,6 +178,7 @@ object MarkdownParser {
                     parents.add(element)
                     lastStartIndex = endIndex
                 }
+
                 //10 -> BLOCK CODE - optionally
                 10 -> {
                     //
@@ -198,7 +186,19 @@ object MarkdownParser {
 
                 //11 -> NUMERIC LIST
                 11 -> {
-                    //
+                    //text without "[0-9]. "
+                    val reg = "^[0-9]+".toRegex().find(string.subSequence(startIndex, endIndex))
+                    val order = reg!!.value
+
+                    text = string.subSequence(startIndex.plus(order.length + 2), endIndex)
+
+                    // find inner elements
+                    val subs = findElements(text)
+                    val element = Element.OrderedListItem(order, text, subs)
+                    parents.add(element)
+
+                    // next find start from position "endIndex" (last regex character)
+                    lastStartIndex = endIndex
                 }
             }
 
@@ -210,6 +210,20 @@ object MarkdownParser {
         }
 
         return parents
+    }
+
+    private fun addText(element: Element): String {
+        var text: String = ""
+
+        if (element.elements.isEmpty()) {
+            text = element.text.toString()
+        } else {
+            element.elements.forEach {
+                text += addText(it)
+            }
+        }
+
+        return text
     }
 }
 
