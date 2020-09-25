@@ -16,7 +16,7 @@ object MarkdownParser {
     private const val RULE_GROUP = "(^[-_*]{3}$)"
     private const val INLINE_GROUP = "((?<!`)`[^`\\s].*?[^`\\s]?`(?!`))"
     private const val LINK_GROUP = "(\\[[^\\[\\]]*?]\\(.+?\\)|^\\[*?]\\(.*?\\))"
-    private const val BLOCK_CODE_GROUP = "(^`{4})" // implement me
+    private const val BLOCK_CODE_GROUP = "(^`{3}[^`]+`{3}$)"
     private const val ORDER_LIST_GROUP = "(^[0-9]+\\. .+$)"
 
     //result regex
@@ -181,7 +181,29 @@ object MarkdownParser {
 
                 //10 -> BLOCK CODE - optionally
                 10 -> {
-                    //
+                    //text without "```{}```"
+                    val list = (".+$LINE_SEPARATOR?").toRegex() //".+\n?".toRegex()
+                        .findAll(string.subSequence(startIndex.plus(3), endIndex.plus(-3)))
+                        .map { it.value }
+                        .toList()
+
+                    var element: Element
+                    if (list.size == 1) {
+                        element = Element.BlockCode(Element.BlockCode.Type.SINGLE, list.first())
+                        parents.add(element)
+                    }
+                    else {
+                        for (i in list.indices) {
+                            element = when (i) {
+                                0 -> Element.BlockCode(Element.BlockCode.Type.START, list.first())
+                                list.size - 1 -> Element.BlockCode(Element.BlockCode.Type.END, list.last())
+                                else -> Element.BlockCode(Element.BlockCode.Type.MIDDLE, list[i])
+                            }
+                            parents.add(element)
+                        }
+                    }
+
+                    lastStartIndex = endIndex
                 }
 
                 //11 -> NUMERIC LIST

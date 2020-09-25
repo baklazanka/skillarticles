@@ -127,6 +127,12 @@ class MarkdownBuilder(context: Context) {
                     }
                 }
 
+                is Element.BlockCode -> {
+                    inSpans(BlockCodeSpan(colorOnSurface, colorSurface, cornerRadius, gap, element.type)) {
+                        append(element.text)
+                    }
+                }
+
                 else -> append(element.text)
             }
         }
