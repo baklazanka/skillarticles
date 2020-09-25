@@ -106,8 +106,9 @@ class BlockCodeSpan(
                     measureWidth = 0
                 }
                 Element.BlockCode.Type.START -> {
-                    fm.ascent = (fm.ascent * 0.85f - 2 * padding).toInt()
-                    fm.descent = (fm.descent * 0.85f).toInt()
+//                    fm.ascent = (fm.ascent * 0.85f - 2 * padding).toInt()
+//                    fm.descent = (fm.descent * 0.85f).toInt()
+                    fm.descent = (fm.descent - 2 * padding).toInt()
 
                     val measureText = paint.measureText(text.toString(), start, end)
                     measureWidth = (measureText + 2 * padding).toInt()
