@@ -16,8 +16,8 @@ object MarkdownParser {
     private const val RULE_GROUP = "(^[-_*]{3}$)"
     private const val INLINE_GROUP = "((?<!`)`[^`\\s].*?[^`\\s]?`(?!`))"
     private const val LINK_GROUP = "(\\[[^\\[\\]]*?]\\(.+?\\)|^\\[*?]\\(.*?\\))"
-    private const val BLOCK_CODE_GROUP = "(^`{3}[^`]+`{3}$)"
-    private const val ORDER_LIST_GROUP = "(^[0-9]+\\. .+$)"
+    private const val BLOCK_CODE_GROUP = "(^```[\\s\\S]+?```$)" //"(^`{3}[^`]+`{3}$)"
+    private const val ORDER_LIST_GROUP = "(^\\d{1,2}\\.\\s.+?$)" //"(^[0-9]+\\. .+$)"
 
     //result regex
     private const val MARKDOWN_GROUPS = "$UNORDERED_LIST_ITEM_GROUP|$HEADER_GROUP|$QUOTE_GROUP" +
@@ -181,45 +181,47 @@ object MarkdownParser {
 
                 //10 -> BLOCK CODE - optionally
                 10 -> {
-                    //text without "```{}```"
-                    val list = (".+$LINE_SEPARATOR?").toRegex() //".+\n?".toRegex()
-                        .findAll(string.subSequence(startIndex.plus(3), endIndex.plus(-3)))
-                        .map { it.value }
-                        .toList()
+                    val text = string.subSequence(startIndex.plus(3), endIndex.plus(-3)).toString()
 
-                    var element: Element
-                    if (list.size == 1) {
-                        element = Element.BlockCode(Element.BlockCode.Type.SINGLE, list.first())
-                        parents.add(element)
-                    }
-                    else {
-                        for (i in list.indices) {
-                            element = when (i) {
-                                0 -> Element.BlockCode(Element.BlockCode.Type.START, list.first())
-                                list.size - 1 -> Element.BlockCode(Element.BlockCode.Type.END, list.last())
-                                else -> Element.BlockCode(Element.BlockCode.Type.MIDDLE, list[i])
+                    if (text.contains(LINE_SEPARATOR)) {
+                        for ((index, line) in text.lines().withIndex()) {
+                            when (index) {
+                                text.lines().lastIndex -> parents.add(
+                                    Element.BlockCode(
+                                        Element.BlockCode.Type.END,
+                                        line
+                                    )
+                                )
+                                0 -> parents.add(
+                                    Element.BlockCode(
+                                        Element.BlockCode.Type.START,
+                                        line + LINE_SEPARATOR
+                                    )
+                                )
+                                else -> parents.add(
+                                    Element.BlockCode(
+                                        Element.BlockCode.Type.MIDDLE,
+                                        line + LINE_SEPARATOR
+                                    )
+                                )
                             }
-                            parents.add(element)
                         }
-                    }
+                    } else parents.add(Element.BlockCode(Element.BlockCode.Type.SINGLE, text))
 
                     lastStartIndex = endIndex
                 }
 
                 //11 -> NUMERIC LIST
                 11 -> {
-                    //text without "[0-9]. "
-                    val reg = "^[0-9]+\\.".toRegex().find(string.subSequence(startIndex, endIndex))
+                    val reg = "(^\\d{1,2}.)".toRegex().find(string.subSequence(startIndex, endIndex))
                     val order = reg!!.value
 
-                    text = string.subSequence(startIndex.plus(order.length + 1), endIndex)
+                    text = string.subSequence(startIndex.plus(order.length.inc()), endIndex).toString()
 
-                    // find inner elements
                     val subs = findElements(text)
-                    val element = Element.OrderedListItem(order, text, subs)
+                    val element = Element.OrderedListItem(order, text.toString(), subs)
                     parents.add(element)
 
-                    // next find start from position "endIndex" (last regex character)
                     lastStartIndex = endIndex
                 }
             }
