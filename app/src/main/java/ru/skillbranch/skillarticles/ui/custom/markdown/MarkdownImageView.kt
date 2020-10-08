@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
+import androidx.annotation.VisibleForTesting
 import androidx.core.animation.doOnEnd
 import androidx.core.view.isVisible
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool
