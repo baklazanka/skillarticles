@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.core.view.children
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
+import ru.skillbranch.skillarticles.extensions.groupByBounds
 import ru.skillbranch.skillarticles.extensions.setPaddingOptionally
 import kotlin.properties.Delegates
 
@@ -43,7 +44,6 @@ class MarkdownContentView @JvmOverloads constructor(
         usedHeight += paddingBottom
         setMeasuredDimension(width, usedHeight)
     }
-
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         var usedHeight = paddingTop
@@ -164,5 +164,6 @@ class MarkdownContentView @JvmOverloads constructor(
         children.filterIsInstance<MarkdownCodeView>()
             .forEach { it.copyListener = listener }
     }
+
 }
 

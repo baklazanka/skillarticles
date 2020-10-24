@@ -27,10 +27,10 @@
 
         <item name="snackbarStyle">@style/CustomSnackbar</item>
 
-        <item name="darkSurfaceColor"  >#272727</item>
-        <item name="lightSurfaceColor"  >#F6F6F6</item>
-        <item name="darkOnSurfaceColor" >#F6F6F6</item>
-        <item name="lightOnSurfaceColor" >#202020</item>
+        <item name="darkSurfaceColor">#272727</item>
+        <item name="lightSurfaceColor">#F6F6F6</item>
+        <item name="darkOnSurfaceColor">#F6F6F6</item>
+        <item name="lightOnSurfaceColor">#202020</item>
 
     </style>
 

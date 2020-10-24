@@ -327,6 +327,7 @@ sealed class MarkdownElement() {
         val blockCode: Element.BlockCode,
         override val offset: Int = 0
     ) : MarkdownElement()
+
 }
 
 sealed class Element() {
@@ -403,6 +404,7 @@ sealed class Element() {
         override val text: CharSequence,
         override val elements: List<Element> = emptyList()
     ) : Element()
+
 }
 
 private fun Element.spread(): List<Element> {
